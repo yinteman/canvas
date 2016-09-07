@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>bigFish</title>
+	<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.js"></script>
+	<link rel="stylesheet" type="text/css" href="canvasBigFish.css">
+</head>
+<body>
+	<audio src="http://www.tofei.cc/comments/22_sea/96742__robinhood76__01650-underwater-bubbles.mp3" preload="true" loop id="music"></audio>
+	<section class="bigFish" >
+		<h1 class="head_title">
+			<span>B</span>
+			<span>i</span>
+			<span>g</span>
+			<span>F</span>
+			<span>i</span>
+			<span>s</span>
+			<span>h</span>
+		</h1>
+<canvas id='canvas'></canvas>
+	</section>
+</body>
+<script type="text/javascript">
+$(function(){
+	//监视浏览器窗口大小的变化
+	function debounce(func,waite,immediate){
+		var timout;
+		return function(){
+			var context=this,arg=argument;
+			var later=function(){
+				timout=null;
+				if (!immediate) {func.apply(context,arg);}
+				var callNow=immediate && !timout ;
+				clearTimeOut(timout);
+				timout=setInterval(later,waite);
+				if (callNow) {func.apply(context,arg)}
+			}
+		}
+	}
+//记录浏览器变化的大小
+var winSize={
+	width:$(window).width(),
+	height:$(window).height()
+
+}
+
+	/**
+	*绘制气泡对象
+	**/
+
+	var bubbles={
+		canvas:null,
+		ctx:null,
+		mouseX:winSize.width,
+		mouseY:winSize.height,
+		cntr:0,
+		circleArr:new Array(),
+		requestId:undefined,
+		init:function(){
+			//设置canvas画布
+			this.canvas=$('#canvas').get(0);
+			this.ctx=this.canvas.getContext('2d');
+			this.canvas.width=winSize.width;
+			this.canvas.height=winSize.height;
+
+			//音乐
+			var music=$('#music').get(0);
+			music.play();
+
+			//浏览器窗口的调整
+			$(window).resize(this.windowRize);
+			},
+	    windowRize:function(){
+              var self=this;
+	         return debounce(function(){
+				winSize={
+					width:$(window).width(),
+					height:$(window).height()
+				};
+				self.canvas.height=winSize.height;
+				self.canvas.width=winSize.width;
+			},50);
+			
+         },
+         loop:function(){
+         	this.requestId =window.requestAnimationFrame(bubbles.loop.bind(this));
+         	this.update();
+
+         	this.render();//更新画布
+
+         },
+         update:function(){
+     
+         	if (this.cntr %1 ==0){
+               this.createCircle();
+         	}
+         	for (var i in this.circleArr) {
+         		var circle=this.circleArr[i];
+         		var max=2,min=-2;
+         		//处于左边的位置
+         		if (this.mouseX <= winSize.width /2 -winSize.width*0.1) {
+         			min=-8;
+         		}else if (this.mouseX >= winSize.width /2 + winSize.width *0.1) {
+         			max=8;//鼠标位于右边时
+         		}
+         		circle.x += Math.floor(Math.random() *(max - min +1)+min);
+         		circle.y -=Math.random()*15;
+         		circle.s *=0.94;
+
+         	};
+         	while( this.circleArr.length >2 && ( this.circleArr[0].s < 0.5 ||this.circleArr[0].x +this.circleArr[0].s <0 || this.circleArr[0].x +this.circleArr[0].s > winSize.width || 
+         		this.circleArr[0].y +this.circleArr[0].s <0 )){
+         		this.circleArr.shift();
+         	}
+         },
+         render:function(){
+         	this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+         	for(var i in this.circleArr){
+         		var current=this.circleArr[i];
+         		this.draw(current.x,current.y,current.s);
+         	}
+         },
+        createCircle:function(){
+            this.circleArr.push({
+            	x:this.mouseX,
+            	y:this.mouseY,
+            	s:Math.random()*winSize.height/50
+            })
+        },
+        draw:function(x,y,s){
+        	this.ctx.fillStyle='rgba(255,255,255,0.5)';
+        	this.ctx.beginPath();
+        	this.ctx.arc(x,y,s,0,Math.PI *2);
+        	this.ctx.fill();
+        },
+        start:function(){
+        	if ( !this.requestId) {
+        		var self=this;
+        		$('#canvas').bind('mousemove',self,function(e){
+          			self.mouseX=e.pageX;
+        	        self.mouseY=e.pageY;
+        		});
+        		$("#canvas").bind('mouseout',self,function(e){
+        			console.log('likai');
+        			self.stop();
+        		})
+        		this.loop();
+        	}
+        },
+        stop:function(){
+        	if (this.requestId) {
+        		window.cancelAnimationFrame(this.requestId);
+        		this.requestId=undefined;
+        		$('#canvas').off('mousemove');
+        		this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        	}
+        }
+
+
+      
+	}
+
+	bubbles.init();
+	bubbles.start();
+	$('#canvas').bind('mouseenter',function(){
+	    bubbles.start();
+	});
+})	
+
+
+
+
+
+
+
+
+</script>
+</html>

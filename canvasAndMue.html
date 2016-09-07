@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>canvas效果和翻页 </title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="rotate.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+
+        }
+        #canvas{
+            background: black;
+        }
+        #nav{
+            width: 130px;
+            height: 400px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            margin: auto;
+
+        }
+        #nav li {
+            list-style: none;
+            position: absolute;
+            left: 0;
+            height: 0;
+            width: 130px;
+            height: 400px;
+            transform-origin: 25px 375px;
+            transition: all .2s ease-in;
+            box-shadow: 2px 2px  10px rgba(0,0,0,0.8);
+        }
+    </style>
+    <script type="text/javascript">
+       $(document).ready(function(){
+           $('#nav').find('li').each(function(i){
+               var color=(parseInt('000',16) + (i+1)*999).toString(16).substr(0,3);
+
+               color = '#'+color;
+               $(this).css({
+                   backgroundColor:color
+               })
+           })
+       })
+    </script>
+</head>
+<body>
+  <canvas id="canvas" ></canvas>
+<ul id="nav">
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
+</body>
+</html>
